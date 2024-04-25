@@ -84,7 +84,7 @@ body {
   text-decoration: underline;
 }
 
-/* NAV */
+/* NAVBAR */
 .header {
   padding: 0 2rem;
   border-bottom: var(--border);
@@ -167,12 +167,11 @@ body {
 
 /* Sets the size of the icon (light/dark theme toggle) to be the same as the font size
     So that it takes up more or less the same amount of space as the links */
-.logo__icon {
-  width: 1.5em;
-  height: 1.5em;
-  transform: translateY(-1.5px);
+.nav__icon {
+  width: 1em;
+  height: 1em;
 }
-/* END NAV */
+/* END NAVBAR */
 
 .footer {
   padding: 1rem 0;
