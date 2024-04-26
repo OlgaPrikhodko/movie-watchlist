@@ -15,15 +15,16 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/main.css') }}" />
 
-    {% block head_content %}{% endblock %}
+    {% block head_content %}
+    {% endblock %}
   </head>
 
   <body>
-    {{ header("2", "") }}
+    {{ header(session.get("email"), session.get("theme")) }}
 
     <main class="main">
-
-      {% block main_content %}{% endblock %}
+      {% block main_content %}
+      {% endblock %}
     </main>
 
     {{ footer() }}
