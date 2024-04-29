@@ -1,6 +1,7 @@
 import uuid
 from flask import (
     Blueprint,
+    abort,
     current_app,
     redirect,
     render_template,
@@ -30,6 +31,17 @@ def index():
     )
 
 
+@pages.get("/movie/<string:_id>")
+def movie(_id: str):
+    movie_data = current_app.db.movie.find_one({"_id": _id})
+    if not movie_data:
+        abort(404)
+
+    movie = Movie(**movie_data)
+
+    return render_template("movie_details.html", movie=movie)
+
+
 @pages.route("/add", methods=["GET", "POST"])
 def add_movie():
     form = MovieForm()
@@ -44,7 +56,7 @@ def add_movie():
 
         current_app.db.movie.insert_one(asdict(movie))
 
-        return redirect(url_for(".index"))
+        return redirect(url_for(".movie", _id=movie._id))
 
     return render_template(
         "new_movie.html", title="Movies Watchlist - Add Movie", form=form
