@@ -41,7 +41,8 @@
                  class="watched__link">Not watched yet</a>
             </p>
           {% endif %}
-          <a class="movie__edit" href="#">Edit {{ pencil("pencil") }}</a>
+          <a class="movie__edit"
+             href="{{ url_for('pages.edit_movie', _id=movie._id) }}">Edit {{ pencil("pencil") }}</a>
         </div>
       </div>
       <div class="header__row">
@@ -70,7 +71,7 @@
       </p>
     {% else %}
       <p class="movie__description">
-        No description yet. <a class="link" href="#">Add one?</a>
+        No description yet. <a class="link" href="{{ url_for('pages.edit_movie', _id=movie._id) }}">Add one?</a>
       </p>
     {% endif %}
 
