@@ -9,11 +9,13 @@ from flask import (
     request,
     session,
     url_for,
+    flash,
 )
 from dataclasses import asdict
+from passlib.hash import pbkdf2_sha256
 
-from movie_library.models import Movie
-from movie_library.forms import ExtendedMovieForm, MovieForm
+from movie_library.models import Movie, User
+from movie_library.forms import ExtendedMovieForm, MovieForm, RegisterForm
 
 pages = Blueprint(
     "pages", __name__, template_folder="templates", static_folder="static"
@@ -114,3 +116,28 @@ def toggle_theme():
         session["theme"] = "dark"
 
     return redirect(request.args.get("current_page"))
+
+
+@pages.route("/register", methods=["GET", "POST"])
+def register():
+    if session.get("email"):
+        return redirect(url_for(".index"))
+
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        user = User(
+            _id=uuid.uuid4().hex,
+            email=form.email.data,
+            password=pbkdf2_sha256.hash(form.password.data),
+        )
+
+        current_app.db.user.insert_one(asdict(user))
+
+        flash("User registered successfully", "success")
+
+        return redirect(url_for(".index"))
+
+    return render_template(
+        "register.html", title="Movies Watchlist - Register", form=form
+    )
