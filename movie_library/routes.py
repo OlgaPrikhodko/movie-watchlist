@@ -38,7 +38,11 @@ def login_required(route):
 @pages.route("/")
 @login_required
 def index():
-    movie_data = current_app.db.movie.find({})
+    user_data = current_app.db.user.find_one({"email": session["email"]})
+    user = User(**user_data)
+
+    movie_data = current_app.db.movie.find({"_id": {"$in": user.movies}})
+    # movie_data = current_app.db.movie.find({})
     movies = [Movie(**movie) for movie in movie_data]
 
     return render_template(
@@ -49,7 +53,6 @@ def index():
 
 
 @pages.get("/movie/<string:_id>")
-@login_required
 def movie(_id: str):
     movie_data = current_app.db.movie.find_one({"_id": _id})
     if not movie_data:
@@ -93,6 +96,9 @@ def add_movie():
         )
 
         current_app.db.movie.insert_one(asdict(movie))
+        current_app.db.user.update_one(
+            {"_id": session["user_id"]}, {"$push": {"movies": movie._id}}
+        )
 
         return redirect(url_for(".movie", _id=movie._id))
 
