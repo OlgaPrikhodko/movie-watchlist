@@ -1,5 +1,7 @@
 import datetime
 import uuid
+import functools
+
 from flask import (
     Blueprint,
     abort,
@@ -22,7 +24,19 @@ pages = Blueprint(
 )
 
 
+def login_required(route):
+    @functools.wraps(route)
+    def route_wrapper(*args, **kwargs):
+        if session.get("email") is None:
+            return redirect(url_for(".login"))
+
+        return route(*args, **kwargs)
+
+    return route_wrapper
+
+
 @pages.route("/")
+@login_required
 def index():
     movie_data = current_app.db.movie.find({})
     movies = [Movie(**movie) for movie in movie_data]
@@ -35,6 +49,7 @@ def index():
 
 
 @pages.get("/movie/<string:_id>")
+@login_required
 def movie(_id: str):
     movie_data = current_app.db.movie.find_one({"_id": _id})
     if not movie_data:
@@ -46,6 +61,7 @@ def movie(_id: str):
 
 
 @pages.get("/movie/<string:_id>/rate")
+@login_required
 def rate_movie(_id):
     rating = int(request.args.get("rating"))
     current_app.db.movie.update_one({"_id": _id}, {"$set": {"rating": rating}})
@@ -54,6 +70,7 @@ def rate_movie(_id):
 
 
 @pages.get("/movie/<string:_id>/watch")
+@login_required
 def watch_today(_id):
     current_app.db.movie.update_one(
         {"_id": _id}, {"$set": {"last_watched": datetime.datetime.today()}}
@@ -63,6 +80,7 @@ def watch_today(_id):
 
 
 @pages.route("/add", methods=["GET", "POST"])
+@login_required
 def add_movie():
     form = MovieForm()
 
@@ -84,6 +102,7 @@ def add_movie():
 
 
 @pages.route("/edit/<string:_id>", methods=["GET", "POST"])
+@login_required
 def edit_movie(_id: str):
     movie_data = current_app.db.movie.find_one({"_id": _id})
     if not movie_data:
